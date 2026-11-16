@@ -9,9 +9,16 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change-this-secret-before-deployment")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///school.db")
+
+# Fix 1: Point SQLite to /tmp if DATABASE_URL isn't set
+db_url = os.environ.get("DATABASE_URL", "sqlite:////tmp/school.db")
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "uploads")
+
+# Fix 2: Point UPLOAD_FOLDER to /tmp so os.makedirs succeeds on Vercel
+app.config["UPLOAD_FOLDER"] = "/tmp/uploads"
 app.config["MAX_CONTENT_LENGTH"] = 25 * 1024 * 1024
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 db = SQLAlchemy(app)
