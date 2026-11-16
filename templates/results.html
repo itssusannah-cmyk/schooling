@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="eyebrow">ACADEMIC PERFORMANCE</div>
+<h1 class="heading">Academic results</h1>
+<p class="muted">Review recorded assessment scores and feedback.</p>
+{% if me.role in ['teacher','admin'] %}
+<section class="panel full">
+  <h3>Record a student result</h3>
+  <form method="post" class="formgrid">
+    <div class="field"><label>Student</label><select name="student_id" required>{% for student in students %}<option value="{{ student.id }}">{{ student.name }} — {{ student.class_name or 'Class not set' }}</option>{% endfor %}</select></div>
+    <div class="field"><label>Subject</label><input name="subject" required></div>
+    <div class="field"><label>Assessment</label><input name="assessment" placeholder="e.g. Mid-term test" required></div>
+    <div class="field"><label>Score</label><input type="number" name="score" min="0" step="0.01" required></div>
+    <div class="field"><label>Maximum score</label><input type="number" name="max_score" min="0.01" step="0.01" value="100" required></div>
+    <div class="field full"><label>Teacher feedback</label><textarea name="feedback"></textarea></div>
+    <div><button class="btn" type="submit">Save result</button></div>
+  </form>
+</section>
+{% endif %}
+<section class="panel full" style="margin-top:18px">
+  <h3>{{ 'Recorded student results' if me.role in ['teacher','admin'] else 'Your results' }}</h3>
+  <table class="table">
+    <tr>{% if me.role in ['teacher','admin'] %}<th>Student</th>{% endif %}<th>Subject</th><th>Assessment</th><th>Score</th><th>Percentage</th><th>Feedback</th><th>Date</th></tr>
+    {% for item in items %}
+    <tr>
+      {% if me.role in ['teacher','admin'] %}<td>{{ db_student_name(item.student_id) }}</td>{% endif %}
+      <td>{{ item.subject }}</td><td>{{ item.assessment }}</td>
+      <td>{{ '%.2f'|format(item.score) }} / {{ '%.2f'|format(item.max_score) }}</td>
+      <td>{{ '%.1f'|format(item.score / item.max_score * 100) }}%</td>
+      <td>{{ item.feedback or '—' }}</td><td>{{ item.created_at.strftime('%d %b %Y') }}</td>
+    </tr>
+    {% else %}<tr><td colspan="7" class="muted">No results have been recorded yet.</td></tr>{% endfor %}
+  </table>
+</section>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="eyebrow">ASSESSMENT IN PROGRESS</div>
+<h1 class="heading">{{ exam.title }}</h1>
+<p class="muted">{{ exam.subject }} · {{ exam.instructions }}</p>
+<div class="hero">
+  <h2>Examination session</h2>
+  <p>Submit your answers before the timer reaches zero. Leaving this examination page will automatically submit your current answers and close the attempt.</p>
+  <strong id="timer">Loading examination timer…</strong>
+</div>
+<form method="post" id="examform" class="panel full">
+  <input type="hidden" name="departure_detected" id="departure_detected" value="0">
+  {% for q in questions %}
+  <div class="field"><label>{{ loop.index }}. {{ q }}</label><textarea name="answer_{{ loop.index0 }}" required></textarea></div>
+  {% endfor %}
+  <button class="btn" id="submitExam" type="submit" onclick="return confirm('Submit your examination now?')">Submit examination</button>
+</form>
+<script>
+const form = document.getElementById("examform");
+const departureField = document.getElementById("departure_detected");
+const timer = document.getElementById("timer");
+const departUrl = {{ url_for('exam_depart', eid=exam.id)|tojson }};
+const end = new Date({{ (deadline.isoformat() ~ 'Z')|tojson }}).getTime();
+let sent = false;
+function submitOnDeparture() {
+  if (sent) return;
+  sent = true;
+  departureField.value = "1";
+  timer.textContent = "Exam page left. Submitting and closing this attempt…";
+  fetch(departUrl, {method:"POST", body:new FormData(form), keepalive:true, credentials:"same-origin"}).catch(() => {});
+  document.getElementById("submitExam").disabled = true;
+}
+form.addEventListener("submit", () => { sent = true; });
+function tick() {
+  if (sent) return;
+  const left = Math.max(0, Math.floor((end - Date.now()) / 1000));
+  timer.textContent = "Time remaining: " + Math.floor(left/60) + "m " + (left%60) + "s";
+  if (left <= 0) {
+    sent = true;
+    timer.textContent = "Time reached. Submitting your answers.";
+    form.requestSubmit();
+  }
+}
+document.addEventListener("visibilitychange", () => { if (document.hidden) submitOnDeparture(); });
+window.addEventListener("pagehide", submitOnDeparture);
+tick();
+setInterval(tick, 1000);
+</script>
+{% endblock %}

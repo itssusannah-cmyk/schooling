@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block public %}
+<div class="office-gateway">
+ <header class="gateway-nav"><a class="public-brand" href="{{ url_for('index') }}"><span class="brand-mark">S</span><span>SAMS<small>ACADEMIC MANAGEMENT</small></span></a><a href="{{ url_for('index') }}">← All portals</a></header>
+ <main class="gateway-main">
+  <div class="gateway-copy">
+   <div class="eyebrow light-eyebrow">SCHOOL LEADERSHIP & ACADEMIC CONTROL</div>
+   <h1>Academic Office<br><em>Management Portal</em></h1>
+   <p>One central workspace for the Academic Office to supervise teachers, students and academic operations across the school.</p>
+   <a class="gateway-login" href="{{ url_for('login', role='admin') }}">Login to Academic Office <span>→</span></a>
+   <div class="gateway-note">Restricted access · For authorized academic office administrators</div>
+  </div>
+  <section class="gateway-work">
+   <div class="eyebrow">WHAT YOU CAN MANAGE</div><h2>School-wide oversight</h2>
+   <div class="gateway-list">
+    <div><span>01</span><section><b>Teachers & staff</b><small>Review teacher accounts, assign roles and manage staff access.</small></section></div>
+    <div><span>02</span><section><b>Students</b><small>Oversee student accounts, classes, learning activity and engagement.</small></section></div>
+    <div><span>03</span><section><b>Academic performance</b><small>Review results, examinations, assignments and learning resources.</small></section></div>
+    <div><span>04</span><section><b>School communication</b><small>Publish announcements and coordinate meetings and messages.</small></section></div>
+    <div><span>05</span><section><b>Monitoring & reports</b><small>Review student activity records and recent platform activity.</small></section></div>
+   </div>
+  </section>
+ </main>
+ <footer class="gateway-footer">SAMS · Academic Office Portal <span>Student oversight · Teacher oversight · Academic administration</span></footer>
+</div>
+{% endblock %}
